@@ -11,33 +11,27 @@ public class RequestRateLimiterMultiThreadedTest {
 
     public static void main(String[] args) throws InterruptedException {
         AtomicInteger atomicInteger = new AtomicInteger();
-        JedisPool jedisPool = new JedisPool("localhost", 6379);
+        RequestRateLimiter requestRateLimiter = new RequestRateLimiter(new JedisPool("localhost", 6379));
         Thread thread1 = new Thread(() -> {
-            try (Jedis jedis = jedisPool.getResource()) {
-                RequestRateLimiter requestRateLimiter = new RequestRateLimiter(jedis);
-                for (int i = 0; i < 60; i++) {
-                    try {
-                        if (Objects.equals(requestRateLimiter.setKey("1"), "200")) {
-                            atomicInteger.incrementAndGet();
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            for (int i = 0; i < 60; i++) {
+                try {
+                    if (Objects.equals(requestRateLimiter.setKey("1"), "200")) {
+                        atomicInteger.incrementAndGet();
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
 
         Thread thread2 = new Thread(() -> {
-            try (Jedis jedis = jedisPool.getResource()) {
-                RequestRateLimiter requestRateLimiter = new RequestRateLimiter(jedis);
-                for (int i = 0; i < 60; i++) {
-                    try {
-                        if (Objects.equals(requestRateLimiter.setKey("1"), "200")) {
-                            atomicInteger.incrementAndGet();
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+            for (int i = 0; i < 60; i++) {
+                try {
+                    if (Objects.equals(requestRateLimiter.setKey("1"), "200")) {
+                        atomicInteger.incrementAndGet();
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
