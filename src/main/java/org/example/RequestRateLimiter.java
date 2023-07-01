@@ -34,5 +34,4 @@ public class RequestRateLimiter {
 
     }
 
-    public static class RateLimitException extends RuntimeException {}
 }
